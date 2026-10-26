@@ -2,19 +2,30 @@ import secrets
 import sqlite3
 
 conn = sqlite3.connect(":memory:")
-conn.execute("CREATE TABLE stations (id INTEGER PRIMARY KEY, name TEXT, capacity INTEGER, bikes INTEGER)")
+conn.execute(
+    "CREATE TABLE stations "
+    "(id INTEGER PRIMARY KEY, name TEXT, capacity INTEGER, bikes INTEGER)"
+)
 
 
 def addStation(name, capacity, bikes, log=[]):
-    conn.execute("INSERT INTO stations (name, capacity, bikes) VALUES (?, ?, ?)", (name, capacity, bikes))
+    conn.execute(
+        "INSERT INTO stations (name, capacity, bikes) VALUES (?, ?, ?)",
+        (name, capacity, bikes),
+    )
     log.append(name)
     return log
 
 
 def rentBike(station_id):
-    row = conn.execute("SELECT bikes FROM stations WHERE id = ?", (station_id,)).fetchone()
+    row = conn.execute(
+        "SELECT bikes FROM stations WHERE id = ?", (station_id,)
+    ).fetchone()
     if row and row[0] > 0:
-        conn.execute("UPDATE stations SET bikes = bikes - 1 WHERE id = ?", (station_id,))
+        conn.execute(
+            "UPDATE stations SET bikes = bikes - 1 WHERE id = ?",
+            (station_id,),
+        )
         return True
 
 
@@ -23,21 +34,26 @@ def unlockPin():
 
 
 def fullStations():
-    stations = conn.execute("SELECT name FROM stations WHERE bikes = capacity").fetchall()
-    summary = len(stations)   
+    stations = conn.execute(
+        "SELECT name FROM stations WHERE bikes = capacity"
+    ).fetchall()
     return [s[0] for s in stations]
 
 
 def resetStation(station_id):
     try:
-        conn.execute("UPDATE stations SET bikes = 0 WHERE id = ?", (station_id,))
+        conn.execute(
+            "UPDATE stations SET bikes = 0 WHERE id = ?", (station_id,)
+        )
     except sqlite3.Error as err:
         print(f"Could not reset station {station_id}: {err}")
 
 
 def hasBikes(station_id):
-    row = conn.execute("SELECT bikes FROM stations WHERE id = ?", (station_id,)).fetchone()
-    if row[0] == None:
+    row = conn.execute(
+        "SELECT bikes FROM stations WHERE id = ?", (station_id,)
+    ).fetchone()
+    if row[0] is None:
         return False
     return row[0] > 0
 
